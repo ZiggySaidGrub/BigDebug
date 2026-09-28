@@ -25,14 +25,7 @@ public class BigDebug : BasePlugin
 
         RegisterTypes();
 
-        DearImGuiInjection.DearImGuiInjection.Render += MyUI;
-
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-    }
-
-    private void MyUI()
-    {
-        ImGui.ShowDemoWindow();
     }
 
     public void BindConfigs()

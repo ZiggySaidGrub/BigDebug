@@ -1,6 +1,8 @@
 using System;
 using System.Text.RegularExpressions;
 using BepInEx.Configuration;
+using BigDebug.ImGuiHelpers;
+using ImGuiNET;
 using UnityEngine;
 
 namespace BigDebug;
@@ -14,6 +16,14 @@ public class BigUI : MonoBehaviour
     {
         pc = GetComponent<PlayerCharacter>();
         rb = pc.rb;
+    }
+    void OnEnable()
+    {
+        DearImGuiInjection.DearImGuiInjection.Render += OnGUIRender;
+    }
+    void OnDisable()
+    {
+        DearImGuiInjection.DearImGuiInjection.Render -= OnGUIRender;
     }
 
     public static ConfigEntry<KeyCode> menuKey;
@@ -31,25 +41,54 @@ public class BigUI : MonoBehaviour
         }
     }
 
-    // void OnGUI()
-    // {
-    //     if (!GUIOn) return;
+    public float rbPosX = 0f;
+    public float rbPosY = 0f;
+    public float rbPosZ = 0f;
+    private void OnGUIRender()
+    {
+        if (ImGui.Begin($"Big Debug {MyPluginInfo.PLUGIN_VERSION}", ref GUIOn))
+        {
+            if (ImGui.BeginTabBar("MainTabBar", ImGuiTabBarFlags.AutoSelectNewTabs | ImGuiTabBarFlags.FittingPolicyScroll))
+            {
+                if (ImGui.BeginTabItem("Teleport"))
+                {
+                    UnityMainThreadDispatcher.Enqueue(() => { rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z; });
+                    ImGui.Text($"Coords: {rbPosX}, {rbPosY}, {rbPosZ}");
 
-    //     GUI.Box(new Rect(10, 10, 250, 90), $"Big Debug {MyPluginInfo.PLUGIN_VERSION}");
-    //     GUI.Label(new(15, 25, 1000, 90), $"Coords: {rb.position}");
-    //     if (GUI.Button(new(15, 45, 240, 20), "Copy Coords to Clipboard"))
-    //     {
-    //         GUIUtility.systemCopyBuffer = $"{rb.position.x}, {rb.position.y}, {rb.position.z}";
-    //     }
-    //     if (GUI.Button(new(15, 70, 240, 20), "Teleport to Coords in Clipboard"))
-    //     {
-    //         string coords = GUIUtility.systemCopyBuffer;
-    //         coords = Regex.Replace(coords, @"\s+", "");
-    //         float[] splitCoords = Array.ConvertAll(coords.Split(","), Single.Parse);
-    //         Vector3 pos = new(splitCoords[0], splitCoords[1], splitCoords[2]);
-    //         Teleport(pos);
-    //     }
-    // }
+                    if (ImGui.Button("Copy Coords to Clipboard"))
+                    {
+                        ImGui.SetClipboardText($"{rbPosX}, {rbPosY}, {rbPosZ}");
+                    }
+                    if (ImGui.Button("Teleport to Coords in Clipboard"))
+                    {
+                        UnityMainThreadDispatcher.Enqueue(() =>
+                        {
+                            string coords = ImGui.GetClipboardText();
+                            coords = Regex.Replace(coords, @"\s+", "");
+                            float[] splitCoords = Array.ConvertAll(coords.Split(","), Single.Parse);
+                            Vector3 pos = new(splitCoords[0], splitCoords[1], splitCoords[2]);
+                            Teleport(pos);
+                        });
+                    }
+
+                    ImGui.EndTabItem();
+                }
+
+
+                if (ImGui.BeginTabItem("About"))
+                {
+                    MoreImGui.TextCentered("Big Debug");
+                    MoreImGui.TextCentered("By Grub");
+
+                    ImGui.EndTabItem();
+                }
+
+                ImGui.EndTabBar();
+            }
+
+            ImGui.End();
+        }
+    }
 
     public void Teleport(Vector3 position)
     {
