@@ -47,7 +47,6 @@ public class BigUI : MonoBehaviour
     public float rbPosY = 0f;
     public float rbPosZ = 0f;
     public float currentTime = 0f;
-    public static ConfigEntry<bool> twelveHourClock;
     private void OnGUIRender()
     {
         if (!GUIOn) return;
@@ -58,50 +57,14 @@ public class BigUI : MonoBehaviour
             {
                 if (ImGui.BeginTabItem("Teleport"))
                 {
-                    UnityMainThreadDispatcher.Enqueue(() => { rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z; });
-                    ImGui.Text($"Coords: {rbPosX}, {rbPosY}, {rbPosZ}");
-
-                    if (ImGui.Button("Copy Coords to Clipboard"))
-                    {
-                        ImGui.SetClipboardText($"{rbPosX}, {rbPosY}, {rbPosZ}");
-                    }
-                    if (ImGui.Button("Teleport to Coords in Clipboard"))
-                    {
-                        UnityMainThreadDispatcher.Enqueue(() =>
-                        {
-                            string coords = ImGui.GetClipboardText();
-                            coords = Regex.Replace(coords, @"\s+", "");
-                            float[] splitCoords = Array.ConvertAll(coords.Split(","), Single.Parse);
-                            Vector3 pos = new(splitCoords[0], splitCoords[1], splitCoords[2]);
-                            teleporter.Teleport(pos);
-                        });
-                    }
+                    TeleportLayout();
 
                     ImGui.EndTabItem();
                 }
-
                 if (ImGui.BeginTabItem("Time"))
                 {
-                    UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
-                    
-                    string ampm = "AM";
-                    int hour = (int) Math.Floor(currentTime);
+                    TimeLayout();
 
-                    float minuteDecimal = currentTime - hour;
-                    int minute = (int) Math.Floor(minuteDecimal * 60);
-
-                    if (twelveHourClock.Value)
-                    {
-                        if (hour >= 12) ampm = "PM";
-                        hour %= 12;
-                        if (hour == 0) hour = 12;
-                    }
-
-
-                    string formattedTime = $"{hour}:{minute:D2}{(twelveHourClock.Value ? $" {ampm}" : "")}";
-                    
-                    ImGui.Text($"Current Time: {formattedTime}");
-                    
                     ImGui.EndTabItem();
                 }
 
@@ -120,6 +83,32 @@ public class BigUI : MonoBehaviour
             ImGui.End();
         }
     }
+    private void TeleportLayout()
+    {
+        UnityMainThreadDispatcher.Enqueue(() => { rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z; });
+        ImGui.Text($"Coords: {rbPosX}, {rbPosY}, {rbPosZ}");
 
-    
+        if (ImGui.Button("Copy Coords to Clipboard"))
+        {
+            ImGui.SetClipboardText($"{rbPosX}, {rbPosY}, {rbPosZ}");
+        }
+        if (ImGui.Button("Teleport to Coords in Clipboard"))
+        {
+            UnityMainThreadDispatcher.Enqueue(() =>
+            {
+                string coords = ImGui.GetClipboardText();
+                coords = Regex.Replace(coords, @"\s+", "");
+                float[] splitCoords = Array.ConvertAll(coords.Split(","), Single.Parse);
+                Vector3 pos = new(splitCoords[0], splitCoords[1], splitCoords[2]);
+                teleporter.Teleport(pos);
+            });
+        }
+    }
+
+    private void TimeLayout()
+    {
+        UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
+
+        ImGui.Text($"Current Time: {TimeFormat.Format(currentTime)}");
+    }
 }
