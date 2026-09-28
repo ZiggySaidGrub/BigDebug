@@ -43,10 +43,6 @@ public class BigUI : MonoBehaviour
         }
     }
 
-    public float rbPosX = 0f;
-    public float rbPosY = 0f;
-    public float rbPosZ = 0f;
-    public float currentTime = 0f;
     private void OnGUIRender()
     {
         if (!GUIOn) return;
@@ -83,6 +79,10 @@ public class BigUI : MonoBehaviour
             ImGui.End();
         }
     }
+
+    public float rbPosX = 0f;
+    public float rbPosY = 0f;
+    public float rbPosZ = 0f;
     private void TeleportLayout()
     {
         UnityMainThreadDispatcher.Enqueue(() => { rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z; });
@@ -105,10 +105,34 @@ public class BigUI : MonoBehaviour
         }
     }
 
+    public float currentTime = 0f;
+    public float timeToSet = 12f;
+    public bool pauseTime = false;
     private void TimeLayout()
     {
         UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
 
-        ImGui.Text($"Current Time: {TimeFormat.Format(currentTime)}");
+        timeToSet = currentTime;
+        if (ImGui.SliderFloat(" ", ref timeToSet, 0f, 24f, $"Current Time: {TimeFormat.Format(timeToSet)}"))
+        {
+            UnityMainThreadDispatcher.Enqueue(() => {
+                SkyManager.SetFixedTime(timeToSet);
+                if (!pauseTime) SkyManager.ClearFixedTime();
+            });
+        }
+        if (ImGui.Checkbox("Pause Time", ref pauseTime))
+        {
+            if (pauseTime)
+            {
+                UnityMainThreadDispatcher.Enqueue(() => {
+                    SkyManager.SetFixedTime(timeToSet);
+                });
+            } else
+            {
+                UnityMainThreadDispatcher.Enqueue(() => {
+                    SkyManager.ClearFixedTime();
+                });
+            }
+        }
     }
 }
