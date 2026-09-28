@@ -47,6 +47,7 @@ public class BigUI : MonoBehaviour
     {
         if (!GUIOn) return;
 
+        ImGui.SetNextWindowSize(new(350f, 400f), ImGuiCond.FirstUseEver);
         if (ImGui.Begin($"Big Debug {MyPluginInfo.PLUGIN_VERSION}"))
         {
             if (ImGui.BeginTabBar("MainTabBar", ImGuiTabBarFlags.AutoSelectNewTabs | ImGuiTabBarFlags.FittingPolicyScroll))
