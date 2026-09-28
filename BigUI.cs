@@ -44,9 +44,13 @@ public class BigUI : MonoBehaviour
     public float rbPosX = 0f;
     public float rbPosY = 0f;
     public float rbPosZ = 0f;
+    public float currentTime = 0f;
+    public static ConfigEntry<bool> twelveHourClock;
     private void OnGUIRender()
     {
-        if (ImGui.Begin($"Big Debug {MyPluginInfo.PLUGIN_VERSION}", ref GUIOn))
+        if (!GUIOn) return;
+
+        if (ImGui.Begin($"Big Debug {MyPluginInfo.PLUGIN_VERSION}"))
         {
             if (ImGui.BeginTabBar("MainTabBar", ImGuiTabBarFlags.AutoSelectNewTabs | ImGuiTabBarFlags.FittingPolicyScroll))
             {
@@ -71,6 +75,29 @@ public class BigUI : MonoBehaviour
                         });
                     }
 
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Time"))
+                {
+                    UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
+                    
+                    string ampm = "AM";
+                    int hour = (int) Math.Floor(currentTime);
+                    if (twelveHourClock.Value && hour >= 12)
+                    {
+                        ampm = "PM";
+                        hour %= 12;
+                        if (hour == 0) hour = 12;
+                    }
+
+                    float minuteDecimal = currentTime - hour;
+                    int minute = (int) Math.Floor(minuteDecimal * 60);
+
+                    string formattedTime = $"{hour}:{minute}{(twelveHourClock.Value ? $" {ampm}" : "")}";
+                    
+                    ImGui.Text($"Current Time: {formattedTime}");
+                    
                     ImGui.EndTabItem();
                 }
 

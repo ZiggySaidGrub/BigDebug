@@ -37,6 +37,7 @@ public class BigDebug : BasePlugin
         BigUI.menuKey =             Config.Bind("Bindings", "MenuKey", KeyCode.F10, "The key to toggle the debug menu");
         BigUI.unlockCursorKey =     Config.Bind("Bindings", "UnlockCursorKey", KeyCode.Delete, "The key to toggle your cursor being unlocked");
 
+        BigUI.twelveHourClock =     Config.Bind("Time", "TwelveHourClock", true, "If true, tells time using a twelve hour clock format");
     }
 
     private readonly Type[] typesToRegister =
