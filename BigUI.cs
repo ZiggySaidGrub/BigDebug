@@ -84,6 +84,10 @@ public class BigUI : MonoBehaviour
                     
                     string ampm = "AM";
                     int hour = (int) Math.Floor(currentTime);
+
+                    float minuteDecimal = currentTime - hour;
+                    int minute = (int) Math.Floor(minuteDecimal * 60);
+                    
                     if (twelveHourClock.Value && hour >= 12)
                     {
                         ampm = "PM";
@@ -91,10 +95,8 @@ public class BigUI : MonoBehaviour
                         if (hour == 0) hour = 12;
                     }
 
-                    float minuteDecimal = currentTime - hour;
-                    int minute = (int) Math.Floor(minuteDecimal * 60);
 
-                    string formattedTime = $"{hour}:{minute}{(twelveHourClock.Value ? $" {ampm}" : "")}";
+                    string formattedTime = $"{hour}:{minute:D2}{(twelveHourClock.Value ? $" {ampm}" : "")}";
                     
                     ImGui.Text($"Current Time: {formattedTime}");
                     
