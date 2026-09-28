@@ -1,3 +1,5 @@
+<!-- TODO: write an actually decent csproj -->
+
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
