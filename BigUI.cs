@@ -87,10 +87,10 @@ public class BigUI : MonoBehaviour
 
                     float minuteDecimal = currentTime - hour;
                     int minute = (int) Math.Floor(minuteDecimal * 60);
-                    
-                    if (twelveHourClock.Value && hour >= 12)
+
+                    if (twelveHourClock.Value)
                     {
-                        ampm = "PM";
+                        if (hour >= 12) ampm = "PM";
                         hour %= 12;
                         if (hour == 0) hour = 12;
                     }
