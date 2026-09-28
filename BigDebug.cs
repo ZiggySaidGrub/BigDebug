@@ -44,6 +44,7 @@ public class BigDebug : BasePlugin
     {
         typeof(BigDebugInjector),
         typeof(BigFly),
+        typeof(BigTeleporter),
         typeof(BigUI),
     };
     public void RegisterTypes()

@@ -13,6 +13,7 @@ public class BigDebugInjector : MonoBehaviour
         pc = GetComponent<PlayerCharacter>();
         flier = gameObject.AddComponent<BigFly>();
         flier.pc = pc;
+        gameObject.AddComponent<BigTeleporter>();
         UI = gameObject.AddComponent<BigUI>();
     }
 }

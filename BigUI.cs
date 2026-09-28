@@ -11,11 +11,13 @@ public class BigUI : MonoBehaviour
 {
     public PlayerCharacter pc;
     public Rigidbody rb;
+    public BigTeleporter teleporter;
     public bool GUIOn = false;
     void Awake()
     {
         pc = GetComponent<PlayerCharacter>();
         rb = pc.rb;
+        teleporter = GetComponent<BigTeleporter>();
     }
     void OnEnable()
     {
@@ -71,7 +73,7 @@ public class BigUI : MonoBehaviour
                             coords = Regex.Replace(coords, @"\s+", "");
                             float[] splitCoords = Array.ConvertAll(coords.Split(","), Single.Parse);
                             Vector3 pos = new(splitCoords[0], splitCoords[1], splitCoords[2]);
-                            Teleport(pos);
+                            teleporter.Teleport(pos);
                         });
                     }
 
@@ -119,14 +121,5 @@ public class BigUI : MonoBehaviour
         }
     }
 
-    public void Teleport(Vector3 position)
-    {
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.position = position;
-        pc.faller.ClearNextFall();
-        pc.grease.Teleport(position, pc.transform.rotation, true);
-        pc.transform.position = position;
-        pc.mover.cachedKernalPos = position;
-    }
+    
 }
