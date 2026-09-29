@@ -21,4 +21,9 @@ public class BigTeleporter : MonoBehaviour
         pc.transform.position = position;
         pc.mover.cachedKernalPos = position;
     }
+    public void Teleport(BigWarpPoint warpPoint)
+    {
+        Vector3 pos = new Vector3(warpPoint.Position[0], warpPoint.Position[1], warpPoint.Position[2]);
+        Teleport(pos);
+    }
 }

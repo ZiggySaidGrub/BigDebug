@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using BigDebug.ImGuiHelpers;
@@ -21,6 +23,7 @@ public class BigUI : MonoBehaviour
         teleporter = GetComponent<BigTeleporter>();
 
         rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z;
+        ReloadWarps();
     }
     void OnEnable()
     {
@@ -48,7 +51,7 @@ public class BigUI : MonoBehaviour
     {
         if (!GUIOn) return;
 
-        ImGui.SetNextWindowSize(new(350f, 400f), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new(465f, 210f), ImGuiCond.FirstUseEver);
         if (ImGui.Begin($"Big Debug {MyPluginInfo.PLUGIN_VERSION}"))
         {
             if (ImGui.BeginTabBar("MainTabBar", ImGuiTabBarFlags.AutoSelectNewTabs | ImGuiTabBarFlags.FittingPolicyScroll))
@@ -85,6 +88,10 @@ public class BigUI : MonoBehaviour
     public float rbPosX = 0f;
     public float rbPosY = 0f;
     public float rbPosZ = 0f;
+    public string warpPointName = "";
+    public string warpPointDescription = "";
+    public FileTreeNode warpTree;
+    public bool loadedTree = false;
     private void TeleportLayout()
     {
         UnityMainThreadDispatcher.Enqueue(() => { rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z; });
@@ -94,6 +101,7 @@ public class BigUI : MonoBehaviour
         {
             ImGui.SetClipboardText($"{rbPosX}, {rbPosY}, {rbPosZ}");
         }
+        ImGui.SameLine();
         if (ImGui.Button("Teleport to Coords in Clipboard"))
         {
             UnityMainThreadDispatcher.Enqueue(() =>
@@ -105,6 +113,49 @@ public class BigUI : MonoBehaviour
                 teleporter.Teleport(pos);
             });
         }
+
+        ImGui.SeparatorText("Save Warp Point");
+
+        ImGui.InputText("Name", ref warpPointName, 24);
+        ImGui.InputTextMultiline("Description", ref warpPointDescription, 240, new(0f, 50f));
+        if (ImGui.Button("Save Location as Warp Point"))
+        {
+            BigWarpPoint warpPoint = new BigWarpPoint
+            {
+                Name = warpPointName,
+                Description = warpPointDescription,
+                Position = [rbPosX, rbPosY, rbPosZ]
+            };
+            string jsonString = JsonSerializer.Serialize(warpPoint);
+            BigDebug.Log.LogInfo(jsonString);
+
+            string invalidChars = Regex.Escape( new string(Path.GetInvalidFileNameChars()) );
+            string invalidRegStr = string.Format( @"([{0}]*\.+$)|([{0}]+)", invalidChars );
+            string fileName = $"{Regex.Replace(warpPointName, invalidRegStr, "-")}.walk";
+
+            string filePath = Path.Join(BigDebug.BigConfig.WarpsFolder, fileName);
+            File.WriteAllText(filePath, jsonString);
+
+            loadedTree = false;
+        }
+
+        ImGui.SeparatorText("Load Warp Point");
+
+        if (ImGui.Button("Reload Warps")) loadedTree = false;
+        
+        if (!loadedTree) ReloadWarps();
+        ImGuiTableFlags table_flags = ImGuiTableFlags.BordersV | ImGuiTableFlags.BordersOuterH | ImGuiTableFlags.Resizable | ImGuiTableFlags.RowBg | ImGuiTableFlags.NoBordersInBody;
+        if (ImGui.BeginTable("WarpsTable", 1, table_flags))
+        {
+            warpTree.DisplayNode(teleporter.Teleport);
+            ImGui.EndTable();
+        }
+    }
+    private void ReloadWarps()
+    {
+        warpTree = FileTreeNode.BuildFromFileTree(BigDebug.BigConfig.WarpsFolder, null, "Warps");
+        loadedTree = true;
+        BigDebug.Log.LogInfo(warpTree);
     }
 
     public float currentTime = 0f;
@@ -124,7 +175,7 @@ public class BigUI : MonoBehaviour
         UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
 
         timeToSet = currentTime;
-        if (ImGui.SliderFloat(" ", ref timeToSet, 0f, 24f, $"Current Time: {TimeFormat.Format(timeToSet)}"))
+        if (ImGui.SliderFloat(" ", ref timeToSet, 0f, 24f, $"Current Time: {TimeFormat.Format(timeToSet)}", ImGuiSliderFlags.NoInput))
         {
             UnityMainThreadDispatcher.Enqueue(() => {
                 SkyManager.SetFixedTime(timeToSet);

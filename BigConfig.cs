@@ -1,3 +1,5 @@
+using System.IO;
+using BepInEx;
 using BepInEx.Configuration;
 using UnityEngine;
 
@@ -6,6 +8,8 @@ namespace BigDebug;
 public class BigConfig
 {
     public ConfigFile Config;
+
+    public string WarpsFolder;
 
     public ConfigEntry<KeyCode> flightKey;
     public ConfigEntry<float> moveSpeed;
@@ -21,6 +25,12 @@ public class BigConfig
         Config = config;
 
         BindConfigs();
+
+        WarpsFolder = Path.Join(Paths.ConfigPath, "BigDebugWarps/");
+        if (!Directory.Exists(WarpsFolder))
+        {
+            Directory.CreateDirectory(WarpsFolder);
+        }
     }
 
     public void BindConfigs()
