@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using BigDebug.ImGuiHelpers;
@@ -18,6 +19,8 @@ public class BigUI : MonoBehaviour
         pc = GetComponent<PlayerCharacter>();
         rb = pc.rb;
         teleporter = GetComponent<BigTeleporter>();
+
+        rbPosX = rb.position.x; rbPosY = rb.position.y; rbPosZ = rb.position.z;
     }
     void OnEnable()
     {
@@ -28,15 +31,13 @@ public class BigUI : MonoBehaviour
         DearImGuiInjection.DearImGuiInjection.Render -= OnGUIRender;
     }
 
-    public static ConfigEntry<KeyCode> menuKey;
-    public static ConfigEntry<KeyCode> unlockCursorKey;
     void Update()
     {
-        if (Input.GetKeyDown(menuKey.Value))
+        if (Input.GetKeyDown(BigDebug.BigConfig.menuKey.Value))
         {
             GUIOn = !GUIOn;
         }
-        if (Input.GetKeyDown(unlockCursorKey.Value))
+        if (Input.GetKeyDown(BigDebug.BigConfig.unlockCursorKey.Value))
         {
             if      (Cursor.lockState == CursorLockMode.Locked) Cursor.lockState = CursorLockMode.None;
             else if (Cursor.lockState == CursorLockMode.None)   Cursor.lockState = CursorLockMode.Locked;
@@ -109,6 +110,15 @@ public class BigUI : MonoBehaviour
     public float currentTime = 0f;
     public float timeToSet = 12f;
     public bool pauseTime = false;
+    private readonly Dictionary<string, float> presetTimes = new()
+    {
+        { "Morning", 6f },
+        { "Noon", 12f },
+        { "Afternoon", 3f },
+        { "Evening", 8f },
+        { "Midnight", 0f },
+        { "?", 2.784f },
+    };
     private void TimeLayout()
     {
         UnityMainThreadDispatcher.Enqueue(() => { currentTime = SkyManager.GetCurrentTime(); });
@@ -135,5 +145,29 @@ public class BigUI : MonoBehaviour
                 });
             }
         }
+
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5f);
+        ImGui.BeginChild("SetTimeChild", new(0, 260), true);
+
+        if (ImGui.BeginTable("Times", 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.NoSavedSettings))
+        {
+            foreach (var time in presetTimes)
+            {
+                ImGui.NextColumn();
+                if (ImGui.Button(time.Key))
+                {
+                    UnityMainThreadDispatcher.Enqueue(() => {
+                        timeToSet = time.Value;
+                        SkyManager.SetFixedTime(timeToSet);
+                        if (!pauseTime) SkyManager.ClearFixedTime();
+                    });
+                }
+            }
+
+            ImGui.EndTable();
+        }
+
+        ImGui.EndChild();
+        ImGui.PopStyleVar();
     }
 }

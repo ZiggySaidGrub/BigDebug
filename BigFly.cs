@@ -22,7 +22,7 @@ public class BigFly : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(flightKey.Value))
+        if (Input.GetKeyDown(BigDebug.BigConfig.flightKey.Value))
         {
             bigFlying = !bigFlying;
             if (bigFlying)
@@ -47,9 +47,6 @@ public class BigFly : MonoBehaviour
     }
 
     public PlayerCharacter pc;
-    public static ConfigEntry<float> fastMoveMultiplier;
-    public static ConfigEntry<float> moveSpeed;
-    public static ConfigEntry<KeyCode> flightKey;
     public bool bigFlying = false;
     public void HandleFlightMovement()
     {
@@ -57,10 +54,10 @@ public class BigFly : MonoBehaviour
 
         Transform mainCamTransform = Camera.main.transform;
         Rewired.Player rewiredPlayer = pc.inputPlayer;
-		float num = moveSpeed.Value;
+		float num = BigDebug.BigConfig.moveSpeed.Value;
 		if (rewiredPlayer.GetButton(15)) // CONTROLS_SPRINT
 		{
-			num *= fastMoveMultiplier.Value;
+			num *= BigDebug.BigConfig.fastMoveMultiplier.Value;
 		}
 		Vector3 val = Vector3.zero;
 

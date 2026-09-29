@@ -13,30 +13,19 @@ namespace BigDebug;
 public class BigDebug : BasePlugin
 {
     internal static new ManualLogSource Log;
+    internal static BigConfig BigConfig;
 
     public override void Load()
     {
         // Plugin startup logic
         Log = base.Log;
-        BindConfigs();
+        BigConfig = new BigConfig(Config);
 
         new Harmony("horse.smots.bigdebug").PatchAll();
 
         RegisterTypes();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-    }
-
-    public void BindConfigs()
-    {
-        BigFly.flightKey =          Config.Bind("Bindings", "FlightKey", KeyCode.F11, "The key to toggle flying");
-        BigFly.moveSpeed =          Config.Bind("Flight", "FlySpeed", 10f, "How fast you move when flying");
-        BigFly.fastMoveMultiplier = Config.Bind("Flight", "FlightSpeedMultipler", 2.5f, "How much faster you go when sprinting while flying");
-        
-        BigUI.menuKey =             Config.Bind("Bindings", "MenuKey", KeyCode.F10, "The key to toggle the debug menu");
-        BigUI.unlockCursorKey =     Config.Bind("Bindings", "UnlockCursorKey", KeyCode.Delete, "The key to toggle your cursor being unlocked");
-
-        TimeFormat.twelveHourClock =     Config.Bind("Time", "TwelveHourClock", true, "If true, tells time using a twelve hour clock format");
     }
 
     private readonly Type[] typesToRegister =

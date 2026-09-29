@@ -1,9 +1,9 @@
 using System;
 using BepInEx.Configuration;
+using BigDebug;
 
 public static class TimeFormat
 {
-    public static ConfigEntry<bool> twelveHourClock;
     public static string Format(float time)
     {
         string ampm = "AM";
@@ -12,13 +12,13 @@ public static class TimeFormat
         float minuteDecimal = time - hour;
         int minute = (int) Math.Floor(minuteDecimal * 60);
 
-        if (twelveHourClock.Value)
+        if (BigDebug.BigDebug.BigConfig.twelveHourClock.Value)
         {
             if (hour >= 12) ampm = "PM";
             hour %= 12;
             if (hour == 0) hour = 12;
         }
 
-        return $"{hour}:{minute:D2}{(twelveHourClock.Value ? $" {ampm}" : "")}";
+        return $"{hour}:{minute:D2}{(BigDebug.BigDebug.BigConfig.twelveHourClock.Value ? $" {ampm}" : "")}";
     }
 }
