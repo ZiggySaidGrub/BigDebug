@@ -42,7 +42,9 @@ public class FileTreeNode
     }
     public override string ToString()
     {
-        return $"{Name}: [{string.Join(", ", Children)}]";
+
+        if (IsFolder) return $"{Name}: [{string.Join(", ", Children)}]";
+        return Name;
     }
 
     public static FileTreeNode BuildFromFileTree(string currentPath, FileTreeNode currentNode = null, string name = null)
