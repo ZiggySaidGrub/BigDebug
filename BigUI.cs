@@ -114,8 +114,8 @@ public class BigUI : MonoBehaviour
     {
         { "Morning", 6f },
         { "Noon", 12f },
-        { "Afternoon", 3f },
-        { "Evening", 8f },
+        { "Afternoon", 15f },
+        { "Evening", 19f },
         { "Midnight", 0f },
         { "?", 2.784f },
     };
@@ -131,6 +131,7 @@ public class BigUI : MonoBehaviour
                 if (!pauseTime) SkyManager.ClearFixedTime();
             });
         }
+        ImGui.SameLine();
         if (ImGui.Checkbox("Pause Time", ref pauseTime))
         {
             if (pauseTime)
@@ -146,15 +147,14 @@ public class BigUI : MonoBehaviour
             }
         }
 
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 5f);
-        ImGui.BeginChild("SetTimeChild", new(0, 260), true);
+        MoreImGui.TextCentered("Time Set");
 
-        if (ImGui.BeginTable("Times", 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.NoSavedSettings))
+        if (ImGui.BeginTable("PresetTimes", 2))
         {
             foreach (var time in presetTimes)
             {
-                ImGui.NextColumn();
-                if (ImGui.Button(time.Key))
+                ImGui.TableNextColumn();
+                if (ImGui.Button(time.Key, new(-float.Epsilon, 0f)))
                 {
                     UnityMainThreadDispatcher.Enqueue(() => {
                         timeToSet = time.Value;
@@ -166,8 +166,5 @@ public class BigUI : MonoBehaviour
 
             ImGui.EndTable();
         }
-
-        ImGui.EndChild();
-        ImGui.PopStyleVar();
     }
 }
