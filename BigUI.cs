@@ -257,7 +257,7 @@ public class BigUI : MonoBehaviour
                 float gourdSqrMagnitude = float.PositiveInfinity;
                 foreach (Prop prop in Prop.allProps)
                 {
-                    if (prop.name != "GourdProp" || prop == pc.hands.heldProp) continue;
+                    if (prop.name != "GourdProp") continue;
                     if (prop.currentHome != null)
                     {
                         if (prop.currentHome.saveableHomeName.ToString().Contains("monoument"))
