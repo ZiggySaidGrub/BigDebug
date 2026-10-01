@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using BigDebug.ImGuiHelpers;
 using ImGuiNET;
+using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Bindings;
 
 namespace BigDebug;
 
@@ -47,8 +50,11 @@ public class BigUI : MonoBehaviour
         }
     }
 
+    public static bool WantsKeyboard { get; private set; } = false;
     private void OnGUIRender()
     {
+        WantsKeyboard = ImGui.GetIO().WantCaptureKeyboard;
+        
         if (!GUIOn) return;
 
         ImGui.SetNextWindowSize(new(465f, 210f), ImGuiCond.FirstUseEver);
@@ -65,6 +71,18 @@ public class BigUI : MonoBehaviour
                 if (ImGui.BeginTabItem("Time"))
                 {
                     TimeLayout();
+
+                    ImGui.EndTabItem();
+                }
+                if (ImGui.BeginTabItem("Lobby"))
+                {
+                    LobbyLayout();
+
+                    ImGui.EndTabItem();
+                }
+                if (ImGui.BeginTabItem("Props"))
+                {
+                    PropLayout();
 
                     ImGui.EndTabItem();
                 }
@@ -217,5 +235,56 @@ public class BigUI : MonoBehaviour
 
             ImGui.EndTable();
         }
+    }
+
+
+    private void PropLayout()
+    {
+        if (ImGui.Button("print list of props"))
+        {
+            UnityMainThreadDispatcher.Enqueue(() => {
+                foreach (Prop prop in Prop.allProps)
+                {
+                    BigDebug.Log.LogInfo($"{prop.name}, {prop.saveablePropName}, {prop.savablePropGuid}");
+                    
+                }
+            });
+        }
+        if (ImGui.Button("Grab nearest [object you get for completing puzzles]"))
+        {
+            UnityMainThreadDispatcher.Enqueue(() => {
+                Prop gourdProp = null;
+                float gourdSqrMagnitude = float.PositiveInfinity;
+                foreach (Prop prop in Prop.allProps)
+                {
+                    if (prop.name != "GourdProp" || prop == pc.hands.heldProp) continue;
+                    if (prop.currentHome != null)
+                    {
+                        if (prop.currentHome.saveableHomeName.ToString().Contains("monoument"))
+                        {
+                            BigDebug.Log.LogInfo("skipping prop due to being in slot");
+                            continue;
+                        }
+                    }
+
+                    if (gourdProp == null || (prop.transform.position - pc.transform.position).sqrMagnitude < gourdSqrMagnitude)
+                    {
+                        gourdProp = prop;
+                        gourdSqrMagnitude = (prop.transform.position - pc.transform.position).sqrMagnitude;
+                    }
+                }
+                pc.hands.heldProp?.SetDropped(pc);
+                gourdProp.SetHeld(pc);
+            });
+        }
+    }
+
+    public Il2CppSystem.Collections.Generic.List<PlayerCharacter> players;
+    private void LobbyLayout()
+    {
+        UnityMainThreadDispatcher.Enqueue(() =>
+        {
+            players = PlayerCharacter.allPlayerCharacters;
+        });
     }
 }

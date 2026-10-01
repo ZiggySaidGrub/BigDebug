@@ -20,6 +20,7 @@ public class BigFly : MonoBehaviour
     //     return !bigFlying;
     // }
 
+    private float _positionDampSmoothTime;
     private void Update()
     {
         if (Input.GetKeyDown(BigDebug.BigConfig.flightKey.Value))
@@ -32,6 +33,9 @@ public class BigFly : MonoBehaviour
                 pc.faller.ignoreFalling = true;
                 pc.mover.bypassUpdate = true;
                 pc.mover.ignoreAirbourneVelocity = true;
+
+                _positionDampSmoothTime = pc.houseNetworkTransform.positionDampSmoothTime;
+                pc.houseNetworkTransform.positionDampSmoothTime = 0f;
             } else
             {
                 pc.rb.useGravity = true;
@@ -40,6 +44,8 @@ public class BigFly : MonoBehaviour
                 pc.mover.bypassUpdate = false;
                 pc.mover.ignoreAirbourneVelocity = false;
                 pc.faller.ClearNextFall();
+
+                pc.houseNetworkTransform.positionDampSmoothTime = _positionDampSmoothTime;
             }
         }
 
@@ -50,7 +56,7 @@ public class BigFly : MonoBehaviour
     public bool bigFlying = false;
     public void HandleFlightMovement()
     {
-        if (pc.texter.isLocalPlayerTextChatting) return;
+        if (pc.texter.isLocalPlayerTextChatting || BigUI.WantsKeyboard) return;
 
         Transform mainCamTransform = Camera.main.transform;
         Rewired.Player rewiredPlayer = pc.inputPlayer;
@@ -76,5 +82,6 @@ public class BigFly : MonoBehaviour
         rb.velocity = Vector3.zero;
         rb.MovePosition(rb.position + val * num * Time.deltaTime);
         pc.transform.position = rb.position;
+        pc.houseNetworkTransform.targetPosition = rb.position;
     }
 }
