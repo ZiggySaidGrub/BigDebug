@@ -1,4 +1,5 @@
 using ImGuiNET;
+using Mirror;
 
 namespace BigDebug.UITabs;
 
@@ -40,8 +41,13 @@ public class PropTab : BigUITab
                         gourdSqrMagnitude = (prop.transform.position - pc.transform.position).sqrMagnitude;
                     }
                 }
+                if (NetworkServer.active)
+                {
+                    gourdProp.ServerSetUnpinned();
+                }
                 pc.hands.heldProp?.SetDropped(pc);
                 gourdProp.SetHeld(pc);
+                pc.playerNetworking.CmdPickUp(new PlayerHeldInformation(gourdProp));
             });
         }
     }
