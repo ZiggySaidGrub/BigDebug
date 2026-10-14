@@ -74,6 +74,8 @@ public class BigUI : MonoBehaviour
             {
                 foreach (BigUITab tab in Tabs)
                 {
+                    if (tab.Experimental && !BigDebug.BigConfig.devMode.Value) continue;
+
                     if (ImGui.BeginTabItem(tab.TabName))
                     {
                         tab.Layout();

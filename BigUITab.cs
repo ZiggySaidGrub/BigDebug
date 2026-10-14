@@ -5,7 +5,8 @@ namespace BigDebug;
 
 public class BigUITab
 {
-    public string TabName { get; protected set; } = "Default";
+    public virtual string TabName { get { return "Default"; } }
+    public virtual bool Experimental { get { return false; } }
     public PlayerCharacter pc;
     public Rigidbody rb;
     public BigTeleporter teleporter;

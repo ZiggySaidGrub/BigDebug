@@ -6,7 +6,7 @@ namespace BigDebug.UITabs;
 
 public class TimeTab : BigUITab
 {
-    public TimeTab() { TabName = "Time"; }
+    public override string TabName => "Time";
 
     private float currentTime = 0f;
     private float timeToSet = 12f;

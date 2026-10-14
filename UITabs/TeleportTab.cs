@@ -10,7 +10,7 @@ namespace BigDebug.UITabs;
 
 public class TeleportTab : BigUITab
 {
-    public TeleportTab() { TabName = "Teleport"; }
+    public override string TabName => "Teleport";
     
     private float rbPosX = 0f;
     private float rbPosY = 0f;

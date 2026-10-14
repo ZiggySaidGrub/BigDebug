@@ -5,7 +5,9 @@ namespace BigDebug.UITabs;
 
 public class PropTab : BigUITab
 {
-    public PropTab() { TabName = "Prop"; }
+    public override string TabName => "Prop";
+    public override bool Experimental => true;
+    
     public override void Layout()
     {
         if (ImGui.Button("print list of props"))
