@@ -7,7 +7,7 @@ public class PropTab : BigUITab
 {
     public override string TabName => "Prop";
     public override bool Experimental => true;
-    
+
     public override void Layout()
     {
         if (ImGui.Button("print list of props"))
@@ -35,6 +35,11 @@ public class PropTab : BigUITab
                             BigDebug.Log.LogInfo("skipping prop due to being in slot");
                             continue;
                         }
+                        if (prop.savablePropGuid == "a804fda8-ecdf-4d8c-99c7-3862667f2ca7")
+                        {
+                            BigDebug.Log.LogInfo("skipping prop due to being glowing");
+                            continue;
+                        }
                     }
 
                     if (gourdProp == null || (prop.transform.position - pc.transform.position).sqrMagnitude < gourdSqrMagnitude)
@@ -50,6 +55,7 @@ public class PropTab : BigUITab
                 pc.hands.heldProp?.SetDropped(pc);
                 gourdProp.SetHeld(pc);
                 pc.playerNetworking.CmdPickUp(new PlayerHeldInformation(gourdProp));
+                BigDebug.Log.LogInfo($"{gourdProp.name}, {gourdProp.saveablePropName}, {gourdProp.savablePropGuid}");
             });
         }
     }
