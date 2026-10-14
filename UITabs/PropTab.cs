@@ -55,7 +55,6 @@ public class PropTab : BigUITab
                 pc.hands.heldProp?.SetDropped(pc);
                 gourdProp.SetHeld(pc);
                 pc.playerNetworking.CmdPickUp(new PlayerHeldInformation(gourdProp));
-                BigDebug.Log.LogInfo($"{gourdProp.name}, {gourdProp.saveablePropName}, {gourdProp.savablePropGuid}");
             });
         }
     }
