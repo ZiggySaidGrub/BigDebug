@@ -13,6 +13,6 @@ internal static class BigMainMenu
     [HarmonyPatch(nameof(VersionDisplay.Awake))]
     internal static void Awake(VersionDisplay __instance)
     {
-        __instance.textField.text += $"\nBig Debug {MyPluginInfo.PLUGIN_VERSION}";
+        __instance.textField.text += $"\nBig Debug v{MyPluginInfo.PLUGIN_VERSION}";
     }
 }
