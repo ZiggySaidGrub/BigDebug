@@ -1,6 +1,8 @@
+using System;
 using System.Runtime.Intrinsics.X86;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace BigDebug;
@@ -54,9 +56,23 @@ public class BigFly : MonoBehaviour
 
     public PlayerCharacter pc;
     public bool bigFlying = false;
+    private float flightSpeedMultipler = 1f;
     public void HandleFlightMovement()
     {
         if (pc.texter.isLocalPlayerTextChatting || BigUI.WantsKeyboard) return;
+
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            float scrollValueSign = Math.Sign(Input.mouseScrollDelta.y);
+            if (scrollValueSign == 1)
+            {
+                flightSpeedMultipler *= Math.Max(BigDebug.BigConfig.scrollAdjustmentSpeed.Value, 1f);
+            }
+            else
+            {
+                flightSpeedMultipler /= Math.Max(BigDebug.BigConfig.scrollAdjustmentSpeed.Value, 1f);
+            }
+        }
 
         Transform mainCamTransform = Camera.main.transform;
         Rewired.Player rewiredPlayer = pc.inputPlayer;
@@ -65,6 +81,8 @@ public class BigFly : MonoBehaviour
 		{
 			num *= BigDebug.BigConfig.fastMoveMultiplier.Value;
 		}
+        num *= flightSpeedMultipler;
+
 		Vector3 val = Vector3.zero;
 
         val += mainCamTransform.forward * rewiredPlayer.GetAxis(8); // forward/backwards axis

@@ -14,6 +14,7 @@ public class BigConfig
     public ConfigEntry<KeyCode> flightKey;
     public ConfigEntry<float> moveSpeed;
     public ConfigEntry<float> fastMoveMultiplier;
+    public ConfigEntry<float> scrollAdjustmentSpeed;
 
     public ConfigEntry<KeyCode> menuKey;
     public ConfigEntry<KeyCode> unlockCursorKey;
@@ -40,7 +41,8 @@ public class BigConfig
         flightKey =             Config.Bind("Bindings", "FlightKey", KeyCode.F11, "The key to toggle flying");
         moveSpeed =             Config.Bind("Flight", "FlySpeed", 10f, "How fast you move when flying");
         fastMoveMultiplier =    Config.Bind("Flight", "FlightSpeedMultipler", 2.5f, "How much faster you go when sprinting while flying");
-        
+        scrollAdjustmentSpeed = Config.Bind("Flight", "ScrollAdjustmentSpeed", 1.5f, "How much scrolling while flying changes your speed");
+
         menuKey =               Config.Bind("Bindings", "MenuKey", KeyCode.F10, "The key to toggle the debug menu");
         unlockCursorKey =       Config.Bind("Bindings", "UnlockCursorKey", KeyCode.Delete, "The key to toggle your cursor being unlocked");
 
