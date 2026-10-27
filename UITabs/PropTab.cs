@@ -18,7 +18,6 @@ public class PropTab : BigUITab
                 foreach (Prop prop in Prop.allProps)
                 {
                     BigDebug.Log.LogInfo($"{prop.name}, {prop.saveablePropName}, {prop.savablePropGuid}");
-                    
                 }
             });
         }
@@ -39,7 +38,6 @@ public class PropTab : BigUITab
                             BigDebug.Log.LogInfo("skipping prop due to being in slot");
                             continue;
                         }
-
                     }
 
                     if (prop.currentHome != null && prop.currentHome.pinnedProp != null && prop.currentHome.pinnedProp.GetEntityId() == prop.GetEntityId())
